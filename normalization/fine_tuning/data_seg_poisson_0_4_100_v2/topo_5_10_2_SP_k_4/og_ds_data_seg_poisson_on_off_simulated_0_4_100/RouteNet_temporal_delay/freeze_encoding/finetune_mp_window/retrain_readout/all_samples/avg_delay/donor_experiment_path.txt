@@ -1,0 +1,1 @@
+baselines_temporal_2/data_seg_poisson_on_off_simulated_0_4_100/RouteNet_temporal_delay_simplified/500_steps/avg_delay/120-0.0132
