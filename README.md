@@ -1,6 +1,6 @@
 # Bridging the Gap Between Simulated and Real Network Data Using Transfer Learning 
 
-**Carlos Güemes Palau, Miquel Ferrior Galmés, Jordi Paillisse Vilanova, Albert López Brescó, Pere Barlet Ros, Albert Cabellos Aparicio**
+**Carlos Güemes-Palau, Miquel Ferriol-Galmés, Jordi Paillisse Vilanova, Albert López-Brescó, Pere Barlet-Ros, Albert Cabellos-Aparicio**
 
 This repository is the code of the paper *Bridging the Gap Between Simulated and Real Network Data Using Transfer Learning* (publication pending)
 
@@ -8,7 +8,8 @@ Contact us: *[carlos.guemes@upc.edu](mailto:carlos.guemes@upc.edu)*, *[contactus
 
 ## Abstract
 
-Machine Learning (ML)-based network models have demonstrated exceptional performance and efficiency, offering fast and accurate predictions for complex network behaviors. However, these models require substantial data for training, which can be challenging to obtain from real networks due to high costs and the difficulty of capturing critical scenarios like network failures. To overcome this, researchers often rely solely on simulated data. However, due to the differences between the two, relying solely on simulated data results in less accurate and reliable models when deployed in production environments. To address this issue, we propose a hybrid approach that leverages transfer learning to combine simulated and real-world data, improving model accuracy. Using the RouteNet-Fermi model, we demonstrate that fine-tuning a pre-trained model with a small real-world dataset significantly enhances prediction performance. Our experiments, conducted with data from the OMNeT++ simulator and our custom testbed network, show that this approach reduces the Mean Absolute Percentage Error (MAPE) by up to 82\% compared to models trained without fine-tuning with the few real-world data.
+Machine Learning (ML)-based network models provide fast and accurate predictions for complex network behaviors but require substantial training data. Collecting such data from real networks is often costly and limited, especially for critical scenarios like failures. As a result, researchers commonly rely on simulated data, which reduces accuracy when models are deployed in real environments.
+To address this, we propose a hybrid approach leveraging transfer learning to combine simulated and real-world data. Using RouteNet-Fermi, we show that fine-tuning a pre-trained model with a small real dataset significantly improves performance. Our experiments with OMNeT++ and a custom testbed reduce the Mean Absolute Percentage Error (MAPE) in packet delay prediction by up to 82%. With just 10 real scenarios, MAPE drops by 37%, and with 50 scenarios, by up to 48%.
 
 # Quickstart
 
@@ -32,6 +33,16 @@ Once those are ready you can:
 The repository contains the following structure:
 - `ckpt`: Folder containing the checkpoints used in the paper evaluation.
 - `data`: Folder containing the datasets used in the paper.
+   - **NOTE**: the mawi training dataset has been partioned into 4 segments as to overcome the file size limitations present in GitHub. You can reform the dataset with the following python script:
+
+```python
+import tensorflow as tf
+ds = tf.data.Dataset.load("data/data_seg_pcaps_simulated/training0", compression="GZIP")
+for ii in range(1,4):
+   ds = ds.concatenate(tf.data.Dataset.load(f"data/data_seg_pcaps_simulated/training{ii}", compression="GZIP"))
+ds.save("data/data_seg_pcaps_simulated/training", compression="GZIP")
+```
+
 - `normalization`: Folder containing the z-score normalizations used by the trained checkpoints (internal path should match the `ckpt` directory).
 - [`train.py`](train.py): script to train a RouteNet-Fermi model normally, without fine-tuning.
 - [`fine_tuning.py`](fine_tuning.py): script to fine-tune a RouteNet-Fermi model
@@ -70,7 +81,7 @@ See the [file](LICENSE) for the full license:
 
 
 ```
-Copyright 2024 Universitat Politècnica de Catalunya
+Copyright 2025 Universitat Politècnica de Catalunya
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

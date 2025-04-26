@@ -1,5 +1,5 @@
 """
-Copyright 2024 Universitat Politècnica de Catalunya
+Copyright 2025 Universitat Politècnica de Catalunya
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ from utils import (
 
 class FINETUNE_OPTIONS(Enum):
     """Enum class to define the fine tunning options."""
+
     FREEZE = 0
     FINETUNE = 1
     RETRAIN = 2

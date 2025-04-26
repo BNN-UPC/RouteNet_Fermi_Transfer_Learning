@@ -1,5 +1,5 @@
 """
-Copyright 2024 Universitat Politècnica de Catalunya
+Copyright 2025 Universitat Politècnica de Catalunya
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import tensorflow as tf
+
 
 class RouteNet_temporal_delay(tf.keras.Model):
     """
     RouteNet_temporal_delay model: a ST-GNN model for flow perfomance prediction. Based
     on RouteNet-Fermi, but with the following changes:
-    - Added temporal dimension 
+    - Added temporal dimension
     - Removed distribution paramters from input: due to it being windowed
     - Added dependency between windows: self.queue_window_update is used to model
     the dependency of queues between windows
@@ -302,7 +304,6 @@ class RouteNet_temporal_delay(tf.keras.Model):
                 )
                 link_state = link_gru_rnn(queue_gather, initial_state=link_state)
 
-
             ###################
             # MESSAGE PASSING #
             #       END       #
@@ -347,4 +348,3 @@ class RouteNet_temporal_delay(tf.keras.Model):
         if self.log:
             return tf.math.log(total_results)
         return total_results
-
