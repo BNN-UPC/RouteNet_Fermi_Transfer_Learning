@@ -24,9 +24,7 @@ from keras import backend as K
 from models import RouteNet_temporal_delay
 
 from random import seed
-from enum import Enum
 from typing import List
-import pickle
 import numpy as np
 from utils import (
     CustomEarlyStop,
@@ -34,15 +32,10 @@ from utils import (
     get_experiment_path,
     prepare_targets_and_mask,
     log_transform,
+    load_and_copy_z_scores,
+    FINETUNE_OPTIONS,
+    load_model_with_ckpt,
 )
-
-
-class FINETUNE_OPTIONS(Enum):
-    """Enum class to define the fine tunning options."""
-
-    FREEZE = 0
-    FINETUNE = 1
-    RETRAIN = 2
 
 
 def get_layer_options_RouteNet_temporal_delay(
@@ -94,86 +87,6 @@ def get_layer_options_RouteNet_temporal_delay(
     ]
 
     return options, "/".join(final_string)
-
-
-def load_model_with_ckpt(
-    model: tf.keras.Model, ckpt_path: str, layer_options: List[FINETUNE_OPTIONS]
-) -> None:
-    """Loads a model with donor weights according to the fine tuning options.
-
-    Parameters
-    ----------
-    model : tf.keras.Model
-        Reciever model
-    ckpt_path : str
-        Path to donor checkpoint
-    layer_options : List[FINETUNE_OPTIONS]
-        Fine tuning options per layer
-    """
-    # Save randomly initialized weights for retrain scenarios
-    model_random_weights = [layer.get_weights() for layer in model.layers]
-    # Load weights from checkpoint
-    model.load_weights(ckpt_path)
-    # Set layers
-    for layer, option, layer_rng_init in zip(
-        model.layers, layer_options, model_random_weights
-    ):
-        if option == FINETUNE_OPTIONS.FREEZE:
-            layer.trainable = False
-        elif option == FINETUNE_OPTIONS.FINETUNE:
-            layer.trainable = True
-        elif option == FINETUNE_OPTIONS.RETRAIN:
-            layer.trainable = True
-            layer.set_weights(layer_rng_init)
-
-
-def load_and_copy_z_scores(
-    params,
-    donor_res_path,
-    new_res_path,
-    check_existing=False,
-):
-    """
-    Get the mean and the std for different parameters of a dataset. Works by copying the
-    z-scores from another experiment. Meant for transfer learning.
-
-    Parameters
-    ----------
-    params: List[str]
-        Input features to be normalized
-    donor_res_path: str
-        Path to normalization results of the donor experiment
-    new_res_path: str
-        Path to store the normalization results of the receiver experiment
-    check_existing: bool
-        If True, check if the new_res_path exists and return the dict if so.
-
-    Returns
-    -------
-    dict
-        Dictionary containing the min and the max-min for each parameter.
-    """
-    # If check_existing is True, check if the file exists and return the dict (if so)
-    if check_existing and os.path.exists(new_res_path):
-        with open(new_res_path, "rb") as ff:
-            return pickle.load(ff)
-
-    # Load the donor dict
-    with open(donor_res_path, "rb") as ff:
-        donor_dict = pickle.load(ff)
-
-    # Check the dict
-    assert all(
-        kk in donor_dict for kk in params
-    ), "Some parameters are missing in the donor dict."
-
-    # Store the dict
-    store_res_dir, _ = os.path.split(new_res_path)
-    os.makedirs(store_res_dir, exist_ok=True)
-    with open(new_res_path, "wb") as ff:
-        pickle.dump(donor_dict, ff)
-
-    return donor_dict
 
 
 # Set all seeds
